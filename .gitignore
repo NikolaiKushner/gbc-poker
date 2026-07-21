@@ -1,0 +1,34 @@
+# Build artifacts
+/build/
+
+# GBDK-2020 toolchain — download with `make toolchain` (platform-specific binaries)
+/tools/
+
+# Emulator save / state files
+*.sav
+*.rtc
+*.sna
+*.state
+
+# SDCC / lcc intermediates (only appear if built outside build/)
+*.o
+*.rel
+*.lst
+*.sym
+*.map
+*.ihx
+*.cdb
+*.adb
+*.rst
+*.noi
+*.asm
+
+# Screenshots dumped during testing
+*.ppm
+
+# macOS
+.DS_Store
+
+# Editor cruft
+*.swp
+*~
