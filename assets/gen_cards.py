@@ -74,6 +74,24 @@ FONT = {
 FONT_CHARS = ("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
               " !$%/:-.><=+,*()")
 
+# Bold 5x7 rank glyphs, drawn large in the corner of a card for readability.
+BIG_RANK = {
+    '2': ["01110", "10001", "00001", "00110", "01000", "10000", "11111"],
+    '3': ["11110", "00001", "00001", "01110", "00001", "00001", "11110"],
+    '4': ["00010", "00110", "01010", "10010", "11111", "00010", "00010"],
+    '5': ["11111", "10000", "11110", "00001", "00001", "10001", "01110"],
+    '6': ["00110", "01000", "10000", "11110", "10001", "10001", "01110"],
+    '7': ["11111", "00001", "00010", "00100", "01000", "01000", "01000"],
+    '8': ["01110", "10001", "10001", "01110", "10001", "10001", "01110"],
+    '9': ["01110", "10001", "10001", "01111", "00001", "00010", "01100"],
+    'T': ["11111", "00100", "00100", "00100", "00100", "00100", "00100"],
+    'J': ["00111", "00010", "00010", "00010", "10010", "10010", "01100"],
+    'Q': ["01110", "10001", "10001", "10001", "10101", "10010", "01101"],
+    'K': ["10001", "10010", "10100", "11000", "10100", "10010", "10001"],
+    'A': ["01110", "10001", "10001", "11111", "10001", "10001", "10001"],
+}
+BIG_RANK_ORDER = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']
+
 SUIT = {
     'spade': ["00011000", "00111100", "01111110", "11111111",
               "11111111", "01011010", "00011000", "00111100"],
@@ -127,6 +145,17 @@ def tile_glyph(ch):
     return t
 
 
+def tile_big_rank(ch):
+    t = blank()
+    g = BIG_RANK[ch]
+    ox, oy = 2, 0        # 5x7 glyph centered in the 8x8 card corner
+    for y in range(7):
+        for x in range(5):
+            if g[y][x] == '1':
+                t[oy + y][ox + x] = 3
+    return t
+
+
 def encode(tile):
     out = []
     for y in range(8):
@@ -149,6 +178,9 @@ def main():
     tiles.append(("BACK", tile_back()))
     for s in SUIT_ORDER:
         tiles.append(("SUIT_" + s.upper(), tile_suit(s)))
+    rank_base = len(tiles)
+    for r in BIG_RANK_ORDER:
+        tiles.append(("RANK_" + r, tile_big_rank(r)))
     font_base = len(tiles)
     for ch in FONT_CHARS:
         tiles.append((None, tile_glyph(ch)))
@@ -188,8 +220,10 @@ def main():
         f.write("#define T_WHITE       ((uint8_t)(CARD_TILE_BASE + 0))\n")
         f.write("#define T_BACK        ((uint8_t)(CARD_TILE_BASE + 1))\n")
         f.write("#define T_SUIT_SPADE  ((uint8_t)(CARD_TILE_BASE + 2))\n")
+        f.write("#define T_RANK_2      ((uint8_t)(CARD_TILE_BASE + %d))\n" % rank_base)
         f.write("#define FONT_BASE     ((uint8_t)(CARD_TILE_BASE + %d))\n\n" % font_base)
-        f.write("/* rank r in 2..14 -> glyph tile; suit s in 0..3 -> pip tile */\n")
+        f.write("/* rank r in 2..14 -> big card glyph; suit s in 0..3 -> pip tile */\n")
+        f.write("#define T_RANK(r) ((uint8_t)(T_RANK_2 + ((r) - 2)))\n")
         f.write("#define T_SUIT(s) ((uint8_t)(T_SUIT_SPADE + (s)))\n")
         f.write("#define T_GLYPH(slot) ((uint8_t)(FONT_BASE + (slot)))\n\n")
         f.write("extern const uint8_t CARD_TILES[%d];\n" % (len(tiles) * 16))

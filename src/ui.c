@@ -28,7 +28,7 @@ static const palette_color_t felt_palettes[] = {
 #define CARD_STEP 3      /* 2-tile card + 1-tile felt gap */
 #define BOARD_X 3
 #define BOARD_Y 7
-#define HERO_X  2
+#define HERO_CARDS_X 7   /* centered: (20 - (2+1+2)) / 2 */
 #define HERO_Y  11
 static const uint8_t OPP_X[3] = { 0, 8, 15 };
 
@@ -111,21 +111,13 @@ static uint8_t put_num(uint8_t x, uint8_t y, uint16_t v, uint8_t pal)
 }
 
 /* ---------------------------- cards -------------------------------- */
-static char rank_char(uint8_t r)
-{
-    static const char t[15] = {
-        '?', '?', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'
-    };
-    return t[r];
-}
-
 static void draw_card(uint8_t x, uint8_t y, uint8_t card)
 {
     uint8_t s = SUIT(card), r = RANK(card);
     uint8_t pal = (s == SUIT_HEARTS || s == SUIT_DIAMONDS) ? PAL_CARD_RD : PAL_CARD_BK;
     uint8_t top[2], bot[2];
-    top[0] = T_CHAR(rank_char(r)); top[1] = T_SUIT(s);
-    bot[0] = T_WHITE;              bot[1] = T_WHITE;
+    top[0] = T_RANK(r); top[1] = T_SUIT(s);   /* big rank + suit pip */
+    bot[0] = T_WHITE;   bot[1] = T_SUIT(s);   /* mirrored pip, card-like */
     set_bkg_tiles(x, y, 2, 1, top);
     set_bkg_tiles(x, (uint8_t)(y + 1), 2, 1, bot);
     fill_attr(x, y, 2, 2, pal);
@@ -244,16 +236,16 @@ void ui_draw_table(const GameState *g, uint8_t hand_no)
         put_num(x, 6, g->cur_bet, PAL_FELT);
     }
 
-    /* hero */
+    /* hero (centered) */
     clear_rect(0, HERO_Y - 1, SCR_W, 3);
-    draw_seat_line(HERO_X, (uint8_t)(HERO_Y - 1), seat_tag(g, 0), "YOU $");
-    put_num((uint8_t)(HERO_X + 6), (uint8_t)(HERO_Y - 1), g->players[0].stack, PAL_FELT);
+    draw_seat_line(6, (uint8_t)(HERO_Y - 1), seat_tag(g, 0), "YOU $");
+    put_num(12, (uint8_t)(HERO_Y - 1), g->players[0].stack, PAL_FELT);
     if (!(g->players[0].flags & PF_OUT)) {
-        draw_card(HERO_X, HERO_Y, g->players[0].hole[0]);
-        draw_card((uint8_t)(HERO_X + CARD_STEP), HERO_Y, g->players[0].hole[1]);
+        draw_card(HERO_CARDS_X, HERO_Y, g->players[0].hole[0]);
+        draw_card((uint8_t)(HERO_CARDS_X + CARD_STEP), HERO_Y, g->players[0].hole[1]);
     }
     if (g->players[0].bet) {
-        uint8_t nx = put_str((uint8_t)(HERO_X + 2 * CARD_STEP), HERO_Y, "B", PAL_HILITE);
+        uint8_t nx = put_str((uint8_t)(HERO_CARDS_X + 2 * CARD_STEP), HERO_Y, "B", PAL_HILITE);
         put_num(nx, HERO_Y, g->players[0].bet, PAL_HILITE);
     }
 }
@@ -368,7 +360,7 @@ void ui_show_showdown(const GameState *g)
         }
     }
     if (g->won[0]) {
-        uint8_t nx = put_str((uint8_t)(HERO_X + 2 * CARD_STEP), HERO_Y, "+", PAL_HILITE);
+        uint8_t nx = put_str((uint8_t)(HERO_CARDS_X + 2 * CARD_STEP), HERO_Y, "+", PAL_HILITE);
         put_num(nx, HERO_Y, g->won[0], PAL_HILITE);
     }
 
