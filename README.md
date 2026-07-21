@@ -5,6 +5,7 @@ Game Boy Color with GBDK-2020. Compiles to a `.gbc` ROM that runs on emulators
 and on handhelds like the R36S (ArkOS, `roms/gbc`).
 
 ![title](docs/title.png) ![table](docs/table.png)
+![showdown](docs/showdown.png) ![stats](docs/stats.png)
 
 ## Features
 
@@ -13,11 +14,13 @@ and on handhelds like the R36S (ArkOS, `roms/gbc`).
   **side-pot** splitting for multi-way all-ins, including odd-chip distribution.
 - **Three AI personalities** — the tight-passive *Professor*, loose-aggressive
   *Cowboy*, and balanced *Shark*, each with its own aggression / looseness /
-  bluff parameters, plus light opponent modelling.
+  bluff parameters, plus light opponent modelling. They also **talk trash** —
+  persona-specific one-liners on value raises, bluffs, and showdown wins.
 - **Graphical CGB table** — green felt, red/black card faces, face-down backs,
   per-tile palettes; all rendered from a compact hand-built tileset.
 - **Tournament mode** — rising blinds, elimination, champion / bust-out screens.
-- **Battery save** — hands played, championships, and best hand persist in SRAM.
+- **Battery save + stats** — hands played, tournaments, championships, and best
+  hand persist in SRAM; a stats screen (SELECT on the title) surfaces them.
 - **APU sound** — deal ticks, chip clinks, and short win/lose/title jingles
   across the GB sound channels ([src/sound.c](src/sound.c)).
 
@@ -89,11 +92,13 @@ assets/
 - **A** — confirm; in the raise sub-menu, **Up/Down** adjust the amount
 - **B** — jump to Fold (or back out of the raise sub-menu)
 - **Start** — title / continue
+- **Select** — view the stats screen from the title
 
 ## Hardware notes
 
-CGB-only ROM (`MBC5+RAM+Battery`, 64 KB / 4 banks; bank 0 ~89% used). All
-arithmetic is 8/16-bit; division and modulo are confined to non-hot UI code.
+CGB-only ROM (`MBC5+RAM+Battery`, 64 KB / 4 banks; bank 0 ~96% used — further
+code/data additions will need to be split into another bank). All arithmetic is
+8/16-bit; division and modulo are confined to non-hot UI code.
 
 ## License
 

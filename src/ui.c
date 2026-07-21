@@ -144,9 +144,8 @@ void ui_init(void)
     DISPLAY_ON;
 }
 
-void ui_title(void)
+static void draw_title(void)
 {
-    uint16_t frames = 0;
     clear_rect(0, 0, SCR_W, SCR_H);
     put_str(5, 3, "GBC POKER", PAL_HILITE);
     put_str(3, 5, "TEXAS HOLD-EM", PAL_FELT);
@@ -154,13 +153,21 @@ void ui_title(void)
     draw_card(9, 7,  MAKE_CARD(SUIT_HEARTS, RANK_KING));
     draw_card(14, 7, MAKE_CARD(SUIT_DIAMONDS, RANK_QUEEN));
     put_str(1, 11, "PROF  COWBOY  SHARK", PAL_FELT);
-    put_str(4, 15, "PRESS START", PAL_FELT);
+    put_str(4, 14, "PRESS START", PAL_FELT);
+    put_str(3, 16, "SELECT = STATS", PAL_FELT);
+}
+
+void ui_title(const SaveData *s)
+{
+    uint16_t frames = 0;
+    draw_title();
     for (;;) {
         vsync();
         frames++;
         if (keys_pressed()) {
             rand_init((uint16_t)(((uint16_t)DIV_REG << 8) ^ frames ^ DIV_REG));
-            if (prev_keys & J_START) { jingle_title(); break; }
+            if (prev_keys & J_SELECT) { ui_show_stats(s); draw_title(); }
+            if (prev_keys & J_START)  { jingle_title(); break; }
         }
     }
     clear_rect(0, 0, SCR_W, SCR_H);
@@ -248,6 +255,13 @@ void ui_draw_table(const GameState *g, uint8_t hand_no)
         uint8_t nx = put_str((uint8_t)(HERO_CARDS_X + 2 * CARD_STEP), HERO_Y, "B", PAL_HILITE);
         put_num(nx, HERO_Y, g->players[0].bet, PAL_HILITE);
     }
+    clear_row(13);   /* persona chatter line */
+}
+
+void ui_say(const char *line)
+{
+    clear_row(13);
+    if (line && line[0]) put_str(1, 13, line, PAL_HILITE);
 }
 
 void ui_flash_action(const GameState *g, uint8_t seat, uint8_t action, uint16_t paid)
@@ -364,12 +378,14 @@ void ui_show_showdown(const GameState *g)
         put_num(nx, HERO_Y, g->won[0], PAL_HILITE);
     }
 
+    clear_row(13);
     clear_row(14);
     for (i = 0; i < MAX_PLAYERS; i++)
         if (g->won[i] && g->shown[i]) {
             x = put_str(0, 14, PLAYER_NAMES[i], PAL_HILITE);
             x = put_str(x, 14, " WINS ", PAL_FELT);
             put_str(x, 14, CAT_NAMES[EVAL_CATEGORY(g->shown[i])], PAL_FELT);
+            ui_say(persona_line(g->players[i].persona, LINE_WIN));
             break;
         }
     clear_row(15);
@@ -377,8 +393,29 @@ void ui_show_showdown(const GameState *g)
     put_str(2, 16, "A = NEXT HAND", PAL_FELT);
     if (g->won[0]) jingle_win();
     while (!(wait_key() & (J_A | J_START))) ;
+    clear_row(13);
     clear_row(14);
     clear_row(16);
+}
+
+void ui_show_stats(const SaveData *s)
+{
+    clear_rect(0, 0, SCR_W, SCR_H);
+    put_str(7, 1, "STATS", PAL_HILITE);
+    put_str(2, 4, "HANDS", PAL_FELT);
+    put_num(13, 4, s->hands_played, PAL_FELT);
+    put_str(2, 6, "TABLES", PAL_FELT);
+    put_num(13, 6, s->tourneys_played, PAL_FELT);
+    put_str(2, 8, "WINS", PAL_HILITE);
+    put_num(13, 8, s->championships, PAL_HILITE);
+    put_str(2, 10, "BEST", PAL_FELT);
+    if (s->hands_played)
+        put_str(9, 10, CAT_NAMES[s->best_category], PAL_HILITE);
+    else
+        put_str(9, 10, "-", PAL_FELT);
+    put_str(4, 15, "B = BACK", PAL_FELT);
+    while (!(wait_key() & (J_B | J_START | J_A))) ;
+    clear_rect(0, 0, SCR_W, SCR_H);
 }
 
 void ui_game_over(uint8_t place)

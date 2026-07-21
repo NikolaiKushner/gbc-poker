@@ -6,6 +6,7 @@
 #include "ui.h"
 #include "save.h"
 #include "sound.h"
+#include "text.h"
 
 /* short burst of card-deal ticks */
 static void deal_fx(uint8_t n)
@@ -35,6 +36,9 @@ static void run_betting(uint8_t hand_no)
                 ai_note_fold_to_raise(0);
         } else {
             action = ai_decide(&g, &raise_to);
+            if (action == ACT_RAISE)
+                ui_say(persona_line(g.players[seat].persona,
+                                    ai_last_bluff ? LINE_BLUFF : LINE_RAISE));
         }
         game_apply_action(&g, action, raise_to);
         ui_flash_action(&g, seat, action, owed);
@@ -92,7 +96,7 @@ void main(void)
     ui_init();
     save_load(&stats);
     for (;;) {
-        ui_title();
+        ui_title(&stats);
         stats.tourneys_played++;
         save_store(&stats);
         run_tournament();

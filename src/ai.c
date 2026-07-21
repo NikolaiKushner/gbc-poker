@@ -13,6 +13,9 @@ const AiProfile AI_PROFILES[4] = {
 /* one counter per seat: how often this player folds when raised */
 static uint8_t fold_to_raise[MAX_PLAYERS];
 
+/* set by ai_decide: was the raise it just returned a bluff? */
+uint8_t ai_last_bluff = 0;
+
 void ai_reset_memory(void)
 {
     uint8_t i;
@@ -188,6 +191,7 @@ uint8_t ai_decide(const GameState *g, uint16_t *raise_to)
     /* exploit: if the target folds a lot, raise thinner */
     if (fold_to_raise[0] > 60) raise_thresh -= 15;
 
+    ai_last_bluff = 0;
     if (score >= raise_thresh) {
         *raise_to = size_raise(g, prof->aggression);
         return ACT_RAISE;
@@ -197,6 +201,7 @@ uint8_t ai_decide(const GameState *g, uint16_t *raise_to)
     if (g->street >= ST_TURN && game_players_left(g) <= 2 &&
         to_call == 0 && rand8() < prof->bluff_freq) {
         *raise_to = size_raise(g, prof->aggression);
+        ai_last_bluff = 1;
         return ACT_RAISE;
     }
 
