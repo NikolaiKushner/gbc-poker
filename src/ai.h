@@ -17,8 +17,6 @@ typedef struct {
 
 extern const AiProfile AI_PROFILES[4];
 
-extern uint8_t ai_last_bluff;   /* 1 if ai_decide's last ACT_RAISE was a bluff */
-
 void ai_reset_memory(void);
 void ai_note_fold_to_raise(uint8_t player);  /* opponent modelling: one counter */
 

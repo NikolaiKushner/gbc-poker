@@ -2,6 +2,7 @@
 #define CARDDATA_H
 
 #include <stdint.h>
+#include <gb/gb.h>
 
 #define CARD_TILE_BASE 0x80
 #define CARD_TILE_COUNT 71
@@ -17,6 +18,7 @@
 #define T_SUIT(s) ((uint8_t)(T_SUIT_SPADE + (s)))
 #define T_GLYPH(slot) ((uint8_t)(FONT_BASE + (slot)))
 
+BANKREF_EXTERN(CARD_TILES)
 extern const uint8_t CARD_TILES[1136];
 extern const uint8_t FONT_MAP[96];
 
