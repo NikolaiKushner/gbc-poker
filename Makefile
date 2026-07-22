@@ -12,7 +12,7 @@ CC       = cc
 LCCFLAGS = -Wm-yC -Wm-yt0x1B -Wm-ya1 -Wl-yo4 -Wm-yn"GBCPOKER"
 
 CORE_SRC = src/rand.c src/deck.c src/eval.c src/game.c src/ai.c
-ROM_SRC  = $(CORE_SRC) src/carddata.c src/fontmap.c src/portraits.c src/sound.c src/ui.c src/text.c src/save.c src/main.c
+ROM_SRC  = $(CORE_SRC) src/carddata.c src/fontmap.c src/portraits.c src/uidata.c src/sound.c src/ui.c src/text.c src/save.c src/main.c
 
 .PHONY: all rom test run clean toolchain
 

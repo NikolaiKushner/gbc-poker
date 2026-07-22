@@ -24,6 +24,7 @@ uint8_t ui_main_menu(uint8_t can_load);   /* -> MM_* */
 uint8_t ui_ingame_menu(void);             /* -> IGM_* */
 void ui_toast(const char *msg);     /* brief centered message */
 void ui_draw_table(const GameState *g, uint8_t hand_no);
+void ui_deal_animate(const GameState *g, uint8_t from_idx);  /* flip in new board cards */
 void ui_flash_action(const GameState *g, uint8_t seat, uint8_t action, uint16_t paid);
 uint8_t ui_prompt_action(const GameState *g, uint16_t *raise_to);
 void ui_show_showdown(const GameState *g);

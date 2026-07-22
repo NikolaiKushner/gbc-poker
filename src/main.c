@@ -65,6 +65,8 @@ static void run_betting(uint8_t hand_no)
             if (action == ACT_FOLD && owed > 0)
                 ai_note_fold_to_raise(0);
         } else {
+            /* pause so the player can read the table before the AI answers */
+            delay(650);
             action = ai_decide(&g, &raise_to);
         }
         game_apply_action(&g, action, raise_to);
@@ -102,11 +104,13 @@ static void run_tournament(uint8_t resume)
         deal_fx(3);                 /* hole cards dealt */
 
         for (;;) {
+            uint8_t prev_bc;
             run_betting(hand_no);
             if (quit_to_menu) return;
+            prev_bc = g.board_count;
             if (game_advance_street(&g)) break;
             ui_draw_table(&g, hand_no);
-            deal_fx(1);             /* community card(s) dealt */
+            ui_deal_animate(&g, prev_bc);   /* community card(s) flip in */
         }
         game_showdown(&g);
         ui_draw_table(&g, hand_no);
